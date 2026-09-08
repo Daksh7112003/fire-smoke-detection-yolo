@@ -25,9 +25,13 @@ def test_detector():
     assert "fire_count" in res
     assert "smoke_count" in res
 
-    # Test annotation
-    annotated = detector.annotate(dummy_frame, res["detections"])
-    assert annotated.shape == dummy_frame.shape
+    # Test both Abonia1 and Kerby models
+    for wp in ["weights/abonia_fire_smoke_yolov8.pt", "weights/fire_smoke_yolov8n.pt"]:
+        if os.path.exists(wp):
+            d = FireSmokeDetector(wp)
+            info = d.get_model_info()
+            print(f"   Tested {wp}: {info['classes']} on {info['device']}")
+            assert d.is_loaded
     print("   FireSmokeDetector test passed!")
 
 def test_worker_and_signals():

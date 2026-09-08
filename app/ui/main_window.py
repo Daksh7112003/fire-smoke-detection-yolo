@@ -149,14 +149,20 @@ class MainWindow(QMainWindow):
         # Model Menu
         model_menu = menubar.addMenu("&Model")
 
+        act_abonia_model = QAction("Abonia1 Early Fire & Smoke (YOLOv8s)", self)
+        act_abonia_model.triggered.connect(lambda: self.worker.switch_model("weights/abonia_fire_smoke_yolov8.pt"))
+        model_menu.addAction(act_abonia_model)
+
+        act_kerby_model = QAction("Kerby Benchmark (YOLOv8n)", self)
+        act_kerby_model.triggered.connect(lambda: self.worker.switch_model("weights/fire_smoke_yolov8n.pt"))
+        model_menu.addAction(act_kerby_model)
+
+        model_menu.addSeparator()
+
         act_load_model = QAction("Load Custom Model (.pt)...", self)
         act_load_model.setShortcut(QKeySequence("Ctrl+M"))
         act_load_model.triggered.connect(self.stats_panel.browse_model_weights)
         model_menu.addAction(act_load_model)
-
-        act_default_model = QAction("Reset to Default Weights", self)
-        act_default_model.triggered.connect(lambda: self.worker.switch_model("weights/fire_smoke_yolov8n.pt"))
-        model_menu.addAction(act_default_model)
 
         # View Menu
         view_menu = menubar.addMenu("&View")

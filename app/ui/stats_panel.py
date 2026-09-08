@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-    QGroupBox, QSlider, QCheckBox, QPushButton, QFileDialog
+    QGroupBox, QSlider, QCheckBox, QPushButton, QFileDialog, QComboBox
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer
 
@@ -149,6 +149,18 @@ class StatsPanelWidget(QWidget):
         self.lbl_device.setStyleSheet("color: #58A6FF; font-weight: 600; font-size: 11px;")
         model_layout.addWidget(self.lbl_device)
 
+        # Model Selection Dropdown List
+        lbl_select = QLabel("Active Model Preset:")
+        lbl_select.setStyleSheet("color: #8B949E; font-weight: 600; font-size: 11px;")
+        model_layout.addWidget(lbl_select)
+
+        self.combo_models = QComboBox()
+        self.combo_models.addItem("🔥 Abonia1 Early Detection (YOLOv8s)", "weights/abonia_fire_smoke_yolov8.pt")
+        self.combo_models.addItem("⚡ Kerby Benchmark (YOLOv8n)", "weights/fire_smoke_yolov8n.pt")
+        self.combo_models.addItem("📂 Load Custom Model (.pt)...", "custom")
+        self.combo_models.currentIndexChanged.connect(self.on_model_combo_changed)
+        model_layout.addWidget(self.combo_models)
+
         self.lbl_model_name = QLabel("Weights: fire_smoke_yolov8n.pt")
         self.lbl_model_name.setStyleSheet("color: #8B949E; font-size: 11px;")
         self.lbl_model_name.setWordWrap(True)
@@ -157,10 +169,6 @@ class StatsPanelWidget(QWidget):
         self.lbl_classes = QLabel("Classes: [smoke, fire]")
         self.lbl_classes.setStyleSheet("color: #8B949E; font-size: 11px;")
         model_layout.addWidget(self.lbl_classes)
-
-        self.btn_load_model = QPushButton("📂 Load Custom Model (.pt)")
-        self.btn_load_model.clicked.connect(self.browse_model_weights)
-        model_layout.addWidget(self.btn_load_model)
 
         layout.addWidget(model_group)
         layout.addStretch()
@@ -223,11 +231,35 @@ class StatsPanelWidget(QWidget):
             """)
 
     def set_model_info(self, info: dict):
-        self.lbl_model_name.setText(f"Weights: {info.get('path', 'Unknown')}")
+        model_filename = info.get('path', 'Unknown')
+        self.lbl_model_name.setText(f"Weights: {model_filename}")
         self.lbl_device.setText(f"Device: {info.get('device', 'Auto')}")
         classes_dict = info.get("classes", {})
         classes_str = ", ".join(classes_dict.values()) if classes_dict else "Unknown"
         self.lbl_classes.setText(f"Classes: [{classes_str}]")
+
+        # Sync combo box without triggering signal
+        self.combo_models.blockSignals(True)
+        if "abonia" in model_filename.lower():
+            self.combo_models.setCurrentIndex(0)
+        elif "yolov8n" in model_filename.lower():
+            self.combo_models.setCurrentIndex(1)
+        else:
+            # Check if custom model item exists or add it
+            idx = self.combo_models.findData(info.get('path'))
+            if idx >= 0:
+                self.combo_models.setCurrentIndex(idx)
+            else:
+                self.combo_models.insertItem(2, f"📦 {model_filename}", info.get('path'))
+                self.combo_models.setCurrentIndex(2)
+        self.combo_models.blockSignals(False)
+
+    def on_model_combo_changed(self, index: int):
+        data = self.combo_models.itemData(index)
+        if data == "custom":
+            self.browse_model_weights()
+        elif data:
+            self.model_switch_requested.emit(data)
 
     def on_conf_changed(self, value: int):
         self.lbl_conf_val.setText(f"{value}%")
