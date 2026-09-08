@@ -173,46 +173,54 @@ class StatsPanelWidget(QWidget):
         self.lbl_fire_count.setText(f"🔥 Fire: {fire_count}")
         self.lbl_smoke_count.setText(f"💨 Smoke: {smoke_count}")
 
+        self.current_hazard_ui_state = "NORMAL"
+
     def trigger_hazard(self, hazard_type: str, count: int, max_conf: float):
-        """Update banner to alert status."""
+        """Update banner to alert status efficiently."""
         self.hazard_reset_timer.stop()
         
         if hazard_type == "FIRE":
             self.banner.setText(f"🚨 FIRE DETECTED! ({count}) — {max_conf*100:.0f}%")
-            self.banner.setStyleSheet("""
-                background-color: #DA3633;
-                color: #FFFFFF;
-                border: 2px solid #F85149;
-                border-radius: 6px;
-                font-size: 13px;
-                font-weight: bold;
-                padding: 10px;
-            """)
+            if self.current_hazard_ui_state != "FIRE":
+                self.current_hazard_ui_state = "FIRE"
+                self.banner.setStyleSheet("""
+                    background-color: #DA3633;
+                    color: #FFFFFF;
+                    border: 2px solid #F85149;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    font-weight: bold;
+                    padding: 10px;
+                """)
         elif hazard_type == "SMOKE":
             self.banner.setText(f"⚠️ SMOKE DETECTED! ({count}) — {max_conf*100:.0f}%")
-            self.banner.setStyleSheet("""
-                background-color: #9E6A03;
-                color: #FFFFFF;
-                border: 2px solid #F2CC60;
-                border-radius: 6px;
-                font-size: 13px;
-                font-weight: bold;
-                padding: 10px;
-            """)
+            if self.current_hazard_ui_state != "SMOKE":
+                self.current_hazard_ui_state = "SMOKE"
+                self.banner.setStyleSheet("""
+                    background-color: #9E6A03;
+                    color: #FFFFFF;
+                    border: 2px solid #F2CC60;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    font-weight: bold;
+                    padding: 10px;
+                """)
 
         self.hazard_reset_timer.start()
 
     def reset_hazard_banner(self):
-        self.banner.setText("🟢 SYSTEM SECURE — NO HAZARDS")
-        self.banner.setStyleSheet("""
-            background-color: #1F3A2A;
-            color: #3FB950;
-            border: 1px solid #238636;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            padding: 10px;
-        """)
+        if self.current_hazard_ui_state != "NORMAL":
+            self.current_hazard_ui_state = "NORMAL"
+            self.banner.setText("🟢 SYSTEM SECURE — NO HAZARDS")
+            self.banner.setStyleSheet("""
+                background-color: #1F3A2A;
+                color: #3FB950;
+                border: 1px solid #238636;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: bold;
+                padding: 10px;
+            """)
 
     def set_model_info(self, info: dict):
         self.lbl_model_name.setText(f"Weights: {info.get('path', 'Unknown')}")

@@ -27,6 +27,7 @@ class InferenceWorker(QThread):
         # Inference settings
         self.conf_threshold = 0.40
         self.iou_threshold = 0.45
+        self.last_alert_time = 0.0
         
         # Shared detection results
         self.results_mutex = QMutex()
@@ -84,11 +85,15 @@ class InferenceWorker(QThread):
             self.latest_detections = res
             self.results_mutex.unlock()
 
-            # Alerts
-            if res["fire_count"] > 0:
-                self.hazard_alert.emit("FIRE", res["fire_count"], res["max_conf"])
-            elif res["smoke_count"] > 0:
-                self.hazard_alert.emit("SMOKE", res["smoke_count"], res["max_conf"])
+            # Alerts (throttled to avoid flooding Qt event loop)
+            now_alert = time.perf_counter()
+            if now_alert - self.last_alert_time >= 0.6:
+                if res["fire_count"] > 0:
+                    self.hazard_alert.emit("FIRE", res["fire_count"], res["max_conf"])
+                    self.last_alert_time = now_alert
+                elif res["smoke_count"] > 0:
+                    self.hazard_alert.emit("SMOKE", res["smoke_count"], res["max_conf"])
+                    self.last_alert_time = now_alert
 
             # Calculate inference FPS
             inference_count += 1
