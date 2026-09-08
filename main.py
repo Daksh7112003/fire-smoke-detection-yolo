@@ -7,8 +7,7 @@ from app.ui.main_window import MainWindow
 
 def main():
     parser = argparse.ArgumentParser(description="Fire & Smoke YOLO PyQt6 Application")
-    default_weights = "weights/abonia_fire_smoke_yolov8.pt" if os.path.exists("weights/abonia_fire_smoke_yolov8.pt") else "weights/fire_smoke_yolov8n.pt"
-    parser.add_argument("--weights", type=str, default=default_weights, help="Path to YOLO weights .pt file")
+    parser.add_argument("--weights", type=str, default="weights/fire_smoke_yolov8n.pt", help="Path to YOLO weights .pt file")
     parser.add_argument("--video", type=str, default="", help="Optional initial video path to open")
     args = parser.parse_args()
 
@@ -24,9 +23,7 @@ def main():
     # Check weights path
     weights_path = args.weights
     if not os.path.exists(weights_path):
-        if os.path.exists("weights/abonia_fire_smoke_yolov8.pt"):
-            weights_path = "weights/abonia_fire_smoke_yolov8.pt"
-        elif os.path.exists("weights/fire_smoke_yolov8n.pt"):
+        if os.path.exists("weights/fire_smoke_yolov8n.pt"):
             weights_path = "weights/fire_smoke_yolov8n.pt"
 
     window = MainWindow(weights_path=weights_path)

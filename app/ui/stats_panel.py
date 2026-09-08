@@ -155,7 +155,6 @@ class StatsPanelWidget(QWidget):
         model_layout.addWidget(lbl_select)
 
         self.combo_models = QComboBox()
-        self.combo_models.addItem("🔥 Abonia1 Early Detection (YOLOv8s)", "weights/abonia_fire_smoke_yolov8.pt")
         self.combo_models.addItem("⚡ Kerby Benchmark (YOLOv8n)", "weights/fire_smoke_yolov8n.pt")
         self.combo_models.addItem("📂 Load Custom Model (.pt)...", "custom")
         self.combo_models.currentIndexChanged.connect(self.on_model_combo_changed)
@@ -240,18 +239,16 @@ class StatsPanelWidget(QWidget):
 
         # Sync combo box without triggering signal
         self.combo_models.blockSignals(True)
-        if "abonia" in model_filename.lower():
+        if "yolov8n" in model_filename.lower():
             self.combo_models.setCurrentIndex(0)
-        elif "yolov8n" in model_filename.lower():
-            self.combo_models.setCurrentIndex(1)
         else:
             # Check if custom model item exists or add it
             idx = self.combo_models.findData(info.get('path'))
             if idx >= 0:
                 self.combo_models.setCurrentIndex(idx)
             else:
-                self.combo_models.insertItem(2, f"📦 {model_filename}", info.get('path'))
-                self.combo_models.setCurrentIndex(2)
+                self.combo_models.insertItem(1, f"📦 {model_filename}", info.get('path'))
+                self.combo_models.setCurrentIndex(1)
         self.combo_models.blockSignals(False)
 
     def on_model_combo_changed(self, index: int):
