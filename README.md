@@ -56,6 +56,35 @@ Live webcam pipeline latency: **up to 40ms**
 
 ---
 
+---
+
+## Desktop Application (PyQt6)
+
+A high-performance desktop interface with persistent in-memory YOLO inference and multi-threaded video processing:
+
+- **GPU Accelerated**: Built-in CUDA support achieving 130+ FPS on NVIDIA GPUs (~7-9 ms latency).
+- **Persistent Model Engine**: The detector stays warm in memory across video queue changes without reloading delays.
+- **Decoupled Architecture**: Video playback runs on a steady 30 FPS clock thread while GPU inference runs asynchronously on a dedicated worker thread.
+- **Multi-Video Queue & Camera**: Add multiple video files, drag-and-drop videos, scan folders, or stream live webcams.
+- **Real-Time Hazards HUD & Strobe Alerts**: Visual perimeter alert flashing on Fire/Smoke detection with audio alarm option.
+- **Audit Event Log**: Records detection events with direct double-click frame seeking and CSV export.
+
+### Quick Start
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *(For NVIDIA GPU acceleration, ensure PyTorch with CUDA is installed)*
+
+2. Run the application:
+   ```bash
+   python main.py
+   ```
+   Or double-click `run_app.bat`.
+
+---
+
 ## References
 
 - He et al., *DCGC-YOLO*, IEEE Access 2024
